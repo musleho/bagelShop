@@ -1,0 +1,17 @@
+Sheridan Bagel Shop
+2022-07-19
+Order Number: 95133
+--------------------------
+White	1		$1.25
+
+	Cream Cheese		$0.50
+	Butter				$0.25
+	Raspberry Jam		$0.75
+	Cream Cheese		$0.50
+	Raspberry Jam		$0.75
+
+Regular	1		$1.25
+--------------------------
+			Subtotal: $3.75
+			Tax: $0.49
+			Total: $4.24

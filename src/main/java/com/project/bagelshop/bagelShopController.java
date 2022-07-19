@@ -11,29 +11,19 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class bagelShopController {
-
+    public static HashMap<String, Double> priceTable;
     //Bread selection
     @FXML private ToggleGroup breadGroup;
     @FXML private RadioButton radNoBread;
-    @FXML private RadioButton radWhite;
-    @FXML private RadioButton radWheat;
     @FXML private TextField qtyBread;
 
     //Coffee selection
     @FXML private ToggleGroup coffeeGroup;
     @FXML private RadioButton radNoCoffee;
-    @FXML private RadioButton radRegular;
-    @FXML private RadioButton radCapp;
-    @FXML private RadioButton radCafe;
     @FXML private TextField qtyCoffee;
 
     //Toppings
     @FXML private Pane toppingsPane;
-    @FXML private CheckBox chkCreamCheese;
-    @FXML private CheckBox chkButter;
-    @FXML private CheckBox chkBlueberry;
-    @FXML private CheckBox chkRaspberry;
-    @FXML private CheckBox chkPeach;
 
     //Price Displays
     @FXML private Label lblSubtotal;
@@ -50,27 +40,24 @@ public class bagelShopController {
     private int coffeeQty;
     private double coffeePrice;
     private final ArrayList<String> toppingsList = new ArrayList<>();
+    private double toppingsPrice;
     private double subtotal;
     private double tax;
     private double total;
 
-    //Builds the price table and provides easy reference for maintainability.
-    //Called in the calculate method
-    private HashMap<Node, Double> buildPriceTable(){
-        HashMap<Node, Double> priceTable = new HashMap<>();
-        priceTable.put(radNoBread, 0.0); //just a placeholder
-        priceTable.put(radWhite, 1.25);
-        priceTable.put(radWheat, 1.5);
-        priceTable.put(radNoCoffee, 0.0);
-        priceTable.put(radRegular, 1.25);
-        priceTable.put(radCapp, 2.0);
-        priceTable.put(radCafe, 1.75);
-        priceTable.put(chkCreamCheese, 0.5);
-        priceTable.put(chkButter, 0.25);
-        priceTable.put(chkBlueberry, 0.75);
-        priceTable.put(chkRaspberry, 0.75);
-        priceTable.put(chkPeach, 0.75);
-        return priceTable;
+    static { //static initializer for priceTable
+        priceTable = new HashMap<>();
+        priceTable.put("none", 0.0); //just a placeholder
+        priceTable.put("white", 1.25);
+        priceTable.put("whole wheat", 1.5);
+        priceTable.put("regular", 1.25);
+        priceTable.put("cappuccino", 2.0);
+        priceTable.put("cafe au lait", 1.75);
+        priceTable.put("cream cheese", 0.5);
+        priceTable.put("butter", 0.25);
+        priceTable.put("blueberry jam", 0.75);
+        priceTable.put("raspberry jam", 0.75);
+        priceTable.put("peach jelly", 0.75);
     }
 
     public void closeWindow() {
@@ -92,6 +79,7 @@ public class bagelShopController {
             coffeeItem = "None";
             coffeeQty = 0;
             coffeePrice = 0;
+            toppingsPrice = 0;
             toppingsList.clear();
             subtotal = 0;
             tax = 0;
@@ -101,54 +89,54 @@ public class bagelShopController {
         else {calculate();}
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
-    private void calculate() {
-        HashMap<Node, Double> priceTable = buildPriceTable();
-        subtotal = 0; //value for subtotal
+    private void getBreadPrice() {
+        breadPrice = 0;
 
-        //light exception handling for the qty fields.
         try {breadQty = Integer.parseInt(qtyBread.getText());}
         catch (NumberFormatException e) {breadQty = 1;}
+
+        for (Toggle breadChoice : breadGroup.getToggles()) {
+            if (breadChoice.isSelected()) {
+                breadItem = ((RadioButton) breadChoice).getText();
+                breadPrice = priceTable.get(breadItem.toLowerCase()) * breadQty;
+                break;
+            }
+        }
+    }
+
+    private void getCoffeePrice() {
+        coffeePrice = 0;
 
         try {coffeeQty = Integer.parseInt(qtyCoffee.getText());}
         catch (NumberFormatException e) {coffeeQty = 1;}
 
-        //adds the bread cost and sets variables
-        for (Toggle breadChoice : breadGroup.getToggles()) {
-            if (breadChoice.isSelected()) {
-                subtotal += priceTable.get(breadChoice) * breadQty;
-                breadPrice = priceTable.get(breadChoice) * breadQty;
-                String rawText = ((RadioButton) breadChoice).getText();
-                try {breadItem = rawText.substring(0, rawText.indexOf("(") - 1);}
-                catch (StringIndexOutOfBoundsException e) {breadItem = rawText;}
-            }
-        }
-
-        //adds the coffee cost and sets variables
         for (Toggle coffeeChoice : coffeeGroup.getToggles()) {
             if (coffeeChoice.isSelected()) {
-                subtotal += priceTable.get(coffeeChoice) * coffeeQty;
-                coffeePrice = priceTable.get(coffeeChoice) * coffeeQty;
-                String rawText = ((RadioButton) coffeeChoice).getText();
-                try {coffeeItem = rawText.substring(0, rawText.indexOf("(") - 1);}
-                catch (StringIndexOutOfBoundsException e) {coffeeItem = rawText;}
+                coffeeItem = ((RadioButton) coffeeChoice).getText();
+                coffeePrice = priceTable.get(coffeeItem.toLowerCase()) * coffeeQty;
             }
         }
+    }
 
-        //adds the toppings cost
+    private void getToppingsPrice() {
+        toppingsPrice = 0;
+        toppingsList.clear();
         for (Node topping : toppingsPane.getChildren()) {
             if (topping instanceof CheckBox) {
                 if (((CheckBox) topping).isSelected()) {
-                    String price = "$" + String.format("%.2f", (priceTable.get(topping) * breadQty));
-                    subtotal += priceTable.get(topping) * breadQty;
-                    String rawText = ((CheckBox)topping).getText();
-                    String tabs = rawText.equals("Butter ($0.25)") ? "\t\t\t\t" : "\t\t";
-                    toppingsList.add("\n\t" + (rawText.substring(0, rawText.indexOf("(") - 1) + tabs + price));
+                    String toppingText = ((CheckBox) topping).getText();
+                    toppingsPrice += priceTable.get(toppingText.toLowerCase()) * breadQty;
+                    String price = "$" + String.format("%.2f", (priceTable.get(toppingText.toLowerCase()) * breadQty));
+                    String tabs = toppingText.equalsIgnoreCase("butter") ? "\t\t\t\t" : "\t\t";
+                    toppingsList.add("\n\t" + (toppingText + tabs + price));
                 }
             }
         }
+    }
 
-        //calculate the other price elements
+    private void calculate() {
+        getBreadPrice(); getCoffeePrice(); getToppingsPrice(); //calculate the prices for each
+        subtotal = breadPrice + coffeePrice + toppingsPrice;
         tax = subtotal * 0.13;
         total = subtotal + tax;
 
@@ -228,9 +216,9 @@ public class bagelShopController {
         }
         coffee += "\n"+lineBreak;
 
-        String toppings = "";
+        StringBuilder toppings = new StringBuilder();
         for (String topping : toppingsList) {
-            toppings += topping;
+            toppings.append(topping);
         }
 
         String[] printInfo = {
@@ -239,7 +227,7 @@ public class bagelShopController {
                 "Order Number: " + orderNum,
                 lineBreak,
                 bread,
-                toppings,
+                toppings.toString(),
                 coffee,
                 "\t\t\tSubtotal: $" + String.format("%.2f", subtotal),
                 "\t\t\tTax: $" + String.format("%.2f", tax),
