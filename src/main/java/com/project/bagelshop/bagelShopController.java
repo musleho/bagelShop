@@ -208,7 +208,7 @@ public class bagelShopController {
         return orderNum.toString();
     }
 
-    public void saveToFile() throws IOException {
+    public void printReceipt() throws IOException {
         calculateTotal();
         if (total == 0) {
             Alert popup = new Alert(Alert.AlertType.INFORMATION);
@@ -217,10 +217,10 @@ public class bagelShopController {
             popup.showAndWait();
         }
 
-        else {save();}
+        else {print();}
     }
 
-    private void save() throws IOException {
+    private void print() throws IOException {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String orderNum = orderNumGen();
         String lineBreak = "--------------------------";
@@ -270,7 +270,7 @@ public class bagelShopController {
         printer.close();
     }
 
-    public void printReceipt() {
+    public void saveToFile() {
         //send receipt to the printer
     }
 
