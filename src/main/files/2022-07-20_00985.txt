@@ -1,0 +1,15 @@
+Sheridan Bagel Shop
+2022-07-20
+Order Number: 00985
+--------------------------
+White	2		$2.50
+
+	Cream Cheese		$1.00
+	Butter				$0.50
+	Blueberry Jam		$1.50
+
+Regular	2		$2.50
+--------------------------
+			Subtotal: $8.00
+			Tax: $1.04
+			Total: $9.04

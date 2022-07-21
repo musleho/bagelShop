@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -63,6 +64,32 @@ public class bagelShopController {
     public void closeWindow() {
         Stage stage = (Stage) btnExit.getScene().getWindow();
         stage.close();
+    }
+
+    public void enableToppings() {
+        for (Node topping : toppingsPane.getChildren()) {
+            if (topping instanceof Label toppingLabel) {
+                if (!toppingLabel.getText().equals("Pick your Toppings")) {
+                    toppingLabel.setTextFill(Color.BLACK);
+                }
+            }
+            if (topping instanceof CheckBox) {
+                topping.setDisable(false);
+            }
+        }
+    }
+
+    public void disableToppings() {
+        for (Node topping : toppingsPane.getChildren()) {
+            if (topping instanceof Label toppingLabel) {
+                if (!toppingLabel.getText().equals("Pick your Toppings")) {
+                    toppingLabel.setTextFill(Color.LIGHTGRAY);
+                }
+            }
+            if (topping instanceof CheckBox) {
+                topping.setDisable(true);
+            }
+        }
     }
 
     public void calculateTotal() {
@@ -127,7 +154,8 @@ public class bagelShopController {
                     String toppingText = ((CheckBox) topping).getText();
                     toppingsPrice += priceTable.get(toppingText.toLowerCase()) * breadQty;
                     String price = "$" + String.format("%.2f", (priceTable.get(toppingText.toLowerCase()) * breadQty));
-                    String tabs = toppingText.equalsIgnoreCase("butter") ? "\t\t\t\t" : "\t\t";
+                    String tabs = toppingText.equalsIgnoreCase("butter") ? "\t\t\t\t"
+                                    : toppingText.equalsIgnoreCase("peach jelly") ? "\t\t\t" : "\t\t";
                     toppingsList.add("\n\t" + (toppingText + tabs + price));
                 }
             }
@@ -168,6 +196,7 @@ public class bagelShopController {
         qtyBread.setText("");
         qtyCoffee.setText("");
         calculateTotal();
+        disableToppings();
     }
 
     public String orderNumGen() {
@@ -179,7 +208,7 @@ public class bagelShopController {
         return orderNum.toString();
     }
 
-    public void saveToFile() throws IOException {
+    public void printReceipt() throws IOException {
         calculateTotal();
         if (total == 0) {
             Alert popup = new Alert(Alert.AlertType.INFORMATION);
@@ -188,10 +217,10 @@ public class bagelShopController {
             popup.showAndWait();
         }
 
-        else {save();}
+        else {print();}
     }
 
-    private void save() throws IOException {
+    private void print() throws IOException {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String orderNum = orderNumGen();
         String lineBreak = "--------------------------";
@@ -241,7 +270,7 @@ public class bagelShopController {
         printer.close();
     }
 
-    public void printReceipt() {
+    public void saveToFile() {
         //send receipt to the printer
     }
 
