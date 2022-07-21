@@ -3,85 +3,86 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane fx:id="windowPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="426.0" prefWidth="600.0" style="-fx-background-color: white;"
-            xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.project.bagelshop.bagelShopController">
-   <Pane fx:id="breadPane" layoutX="14.0" layoutY="37.0" prefHeight="174.0" prefWidth="264.0"
-         style="-fx-border-color: black;">
-      <RadioButton fx:id="radNoBread" layoutX="27.0" layoutY="33.0" mnemonicParsing="false" selected="true"
-                   text="None">
+<AnchorPane fx:id="windowPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="436.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.project.bagelshop.bagelShopController">
+   <Pane fx:id="breadPane" layoutX="14.0" layoutY="45.0" prefHeight="174.0" prefWidth="264.0" style="-fx-border-color: black;">
+      <RadioButton fx:id="radNoBread" layoutX="27.0" layoutY="33.0" mnemonicParsing="false" onAction="#disableToppings" selected="true" text="None">
          <toggleGroup>
-            <ToggleGroup fx:id="breadGroup"/>
+            <ToggleGroup fx:id="breadGroup" />
          </toggleGroup>
       </RadioButton>
-      <RadioButton fx:id="radWhite" layoutX="27.0" layoutY="62.0" mnemonicParsing="false" text="White"
-                   toggleGroup="$breadGroup"/>
-      <RadioButton fx:id="radWheat" layoutX="27.0" layoutY="90.0" mnemonicParsing="false" text="Whole Wheat"
-                   toggleGroup="$breadGroup"/>
-      <Label layoutX="14.0" layoutY="-8.0" style="-fx-background-color: white;" text="Pick your Bread"/>
-      <Label layoutX="58.0" layoutY="142.0" text="Qty:"/>
-      <TextField fx:id="qtyBread" layoutX="89.0" layoutY="138.0" prefHeight="25.0" prefWidth="59.0"/>
-      <Label layoutX="85.0" layoutY="62.0" text="($1.25)"/>
-      <Label layoutX="126.0" layoutY="90.0" text="($1.50)"/>
+      <RadioButton fx:id="radWhite" layoutX="27.0" layoutY="62.0" mnemonicParsing="false" onAction="#enableToppings" text="White" toggleGroup="$breadGroup" />
+      <RadioButton fx:id="radWheat" layoutX="27.0" layoutY="90.0" mnemonicParsing="false" onAction="#enableToppings" text="Whole Wheat" toggleGroup="$breadGroup" />
+      <Label layoutX="14.0" layoutY="-8.0" style="-fx-background-color: white;" text="Pick your Bread" />
+      <Label layoutX="58.0" layoutY="142.0" text="Qty:" />
+      <TextField fx:id="qtyBread" layoutX="89.0" layoutY="138.0" prefHeight="25.0" prefWidth="59.0" />
+      <Label layoutX="85.0" layoutY="62.0" text="($1.25)" />
+      <Label layoutX="126.0" layoutY="90.0" text="($1.50)" />
    </Pane>
-   <Pane fx:id="coffeePane" layoutX="322.0" layoutY="37.0" prefHeight="174.0" prefWidth="264.0"
-         style="-fx-border-color: black;">
-      <RadioButton fx:id="radNoCoffee" layoutX="29.0" layoutY="25.0" mnemonicParsing="false" selected="true"
-                   text="None">
+   <Pane fx:id="coffeePane" layoutX="322.0" layoutY="45.0" prefHeight="174.0" prefWidth="264.0" style="-fx-border-color: black;">
+      <RadioButton fx:id="radNoCoffee" layoutX="29.0" layoutY="25.0" mnemonicParsing="false" selected="true" text="None">
          <toggleGroup>
-            <ToggleGroup fx:id="coffeeGroup"/>
+            <ToggleGroup fx:id="coffeeGroup" />
          </toggleGroup>
       </RadioButton>
-      <RadioButton fx:id="radRegular" layoutX="29.0" layoutY="54.0" mnemonicParsing="false" text="Regular"
-                   toggleGroup="$coffeeGroup"/>
-      <RadioButton fx:id="radCapp" layoutX="29.0" layoutY="82.0" mnemonicParsing="false" prefHeight="17.0"
-                   prefWidth="152.0" text="Cappuccino" toggleGroup="$coffeeGroup"/>
-      <RadioButton fx:id="radCafe" layoutX="29.0" layoutY="110.0" mnemonicParsing="false" prefHeight="17.0"
-                   prefWidth="152.0" text="Cafe Au Lait" toggleGroup="$coffeeGroup"/>
-      <Label layoutX="15.0" layoutY="-8.0" style="-fx-background-color: white;" text="Want Coffee with That?"/>
-      <Label layoutX="69.0" layoutY="143.0" text="Qty:"/>
-      <TextField fx:id="qtyCoffee" layoutX="100.0" layoutY="139.0" prefHeight="25.0" prefWidth="59.0"/>
-      <Label layoutX="96.0" layoutY="54.0" text="($1.25)"/>
-      <Label layoutX="118.0" layoutY="82.0" text="($2.00)"/>
-      <Label layoutX="119.0" layoutY="110.0" text="($1.75)"/>
+      <RadioButton fx:id="radRegular" layoutX="29.0" layoutY="54.0" mnemonicParsing="false" text="Regular" toggleGroup="$coffeeGroup" />
+      <RadioButton fx:id="radCapp" layoutX="29.0" layoutY="82.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="152.0" text="Cappuccino" toggleGroup="$coffeeGroup" />
+      <RadioButton fx:id="radCafe" layoutX="29.0" layoutY="110.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="152.0" text="Cafe Au Lait" toggleGroup="$coffeeGroup" />
+      <Label layoutX="15.0" layoutY="-8.0" style="-fx-background-color: white;" text="Want Coffee with That?" />
+      <Label layoutX="69.0" layoutY="143.0" text="Qty:" />
+      <TextField fx:id="qtyCoffee" layoutX="100.0" layoutY="139.0" prefHeight="25.0" prefWidth="59.0" />
+      <Label layoutX="96.0" layoutY="54.0" text="($1.25)" />
+      <Label layoutX="118.0" layoutY="82.0" text="($2.00)" />
+      <Label layoutX="119.0" layoutY="110.0" text="($1.75)" />
    </Pane>
-   <Pane fx:id="toppingsPane" layoutX="14.0" layoutY="226.0" prefHeight="151.0" prefWidth="264.0"
-         style="-fx-border-color: black;">
-      <Label layoutX="16.0" layoutY="-8.0" style="-fx-background-color: white;" text="Pick your Toppings"/>
-      <CheckBox fx:id="chkCreamCheese" layoutX="23.0" layoutY="25.0" mnemonicParsing="false" text="Cream Cheese"/>
-      <CheckBox fx:id="chkButter" layoutX="23.0" layoutY="49.0" mnemonicParsing="false" text="Butter"/>
-      <CheckBox fx:id="chkBlueberry" layoutX="23.0" layoutY="73.0" mnemonicParsing="false" text="Blueberry Jam"/>
-      <CheckBox fx:id="chkRaspberry" layoutX="23.0" layoutY="97.0" mnemonicParsing="false" text="Raspberry Jam"/>
-      <CheckBox fx:id="chkPeach" layoutX="23.0" layoutY="122.0" mnemonicParsing="false" text="Peach Jelly"/>
-      <Label layoutX="127.0" layoutY="25.0" text="($0.50)"/>
-      <Label layoutX="83.0" layoutY="49.0" text="($0.25)"/>
-      <Label layoutX="125.0" layoutY="73.0" text="($0.75)"/>
-      <Label layoutX="127.0" layoutY="97.0" text="($0.75)"/>
-      <Label layoutX="108.0" layoutY="122.0" text="($0.75)"/>
+   <Pane fx:id="toppingsPane" layoutX="14.0" layoutY="234.0" prefHeight="151.0" prefWidth="264.0" style="-fx-border-color: black;">
+      <Label layoutX="16.0" layoutY="-8.0" style="-fx-background-color: white;" text="Pick your Toppings" />
+      <CheckBox fx:id="chkCreamCheese" disable="true" layoutX="23.0" layoutY="25.0" mnemonicParsing="false" text="Cream Cheese" />
+      <CheckBox fx:id="chkButter" disable="true" layoutX="23.0" layoutY="49.0" mnemonicParsing="false" text="Butter" />
+      <CheckBox fx:id="chkBlueberry" disable="true" layoutX="23.0" layoutY="73.0" mnemonicParsing="false" text="Blueberry Jam" />
+      <CheckBox fx:id="chkRaspberry" disable="true" layoutX="23.0" layoutY="97.0" mnemonicParsing="false" text="Raspberry Jam" />
+      <CheckBox fx:id="chkPeach" disable="true" layoutX="23.0" layoutY="122.0" mnemonicParsing="false" text="Peach Jelly" />
+      <Label layoutX="127.0" layoutY="25.0" styleClass="priceLabel" text="($0.50)" textFill="LIGHTGRAY" />
+      <Label layoutX="83.0" layoutY="49.0" styleClass="priceLabel" text="($0.25)" textFill="LIGHTGRAY" />
+      <Label layoutX="125.0" layoutY="73.0" styleClass="priceLabel" text="($0.75)" textFill="LIGHTGRAY" />
+      <Label layoutX="127.0" layoutY="97.0" styleClass="priceLabel" text="($0.75)" textFill="LIGHTGRAY" />
+      <Label layoutX="108.0" layoutY="122.0" styleClass="priceLabel" text="($0.75)" textFill="LIGHTGRAY" />
    </Pane>
-   <Pane fx:id="pricePane" layoutX="322.0" layoutY="226.0" prefHeight="151.0" prefWidth="264.0"
-         style="-fx-border-color: black;">
-      <Label layoutX="23.0" layoutY="-8.0" style="-fx-background-color: white;" text="Price Summary"/>
-      <Label layoutX="48.0" layoutY="25.0" text="Subtotal"/>
-      <Label layoutX="48.0" layoutY="52.0" text="Sales Tax (13%)"/>
-      <Label layoutX="48.0" layoutY="79.0" text="Total"/>
-      <Button fx:id="btnCalculate" layoutX="94.0" layoutY="112.0" mnemonicParsing="false" onAction="#calculateTotal"
-              text="Recalculate"/>
-      <Label fx:id="lblSubtotal" layoutX="186.0" layoutY="25.0" text="\$0.00"/>
-      <Label fx:id="lblTax" layoutX="186.0" layoutY="52.0" text="\$0.00"/>
-      <Label fx:id="lblTotal" layoutX="186.0" layoutY="79.0" text="\$0.00"/>
+   <Pane fx:id="pricePane" layoutX="322.0" layoutY="234.0" prefHeight="151.0" prefWidth="264.0" style="-fx-border-color: black;">
+      <Label layoutX="23.0" layoutY="-8.0" style="-fx-background-color: white;" text="Price Summary" />
+      <Label layoutX="48.0" layoutY="25.0" text="Subtotal" />
+      <Label layoutX="48.0" layoutY="52.0" text="Sales Tax (13%)" />
+      <Label layoutX="48.0" layoutY="79.0" text="Total" />
+      <Button fx:id="btnCalculate" layoutX="94.0" layoutY="112.0" mnemonicParsing="false" onAction="#calculateTotal" text="Recalculate" />
+      <Label fx:id="lblSubtotal" layoutX="186.0" layoutY="25.0" text="\$0.00" />
+      <Label fx:id="lblTax" layoutX="186.0" layoutY="52.0" text="\$0.00" />
+      <Label fx:id="lblTotal" layoutX="186.0" layoutY="79.0" text="\$0.00" />
    </Pane>
-   <Button fx:id="btnExit" layoutX="14.0" layoutY="387.0" mnemonicParsing="false" onAction="#closeWindow" text="Quit"/>
-   <Button fx:id="btnReset" layoutX="541.0" layoutY="387.0" mnemonicParsing="false" onAction="#resetForm" text="Reset"/>
-   <Button fx:id="btnSave" layoutX="211.0" layoutY="387.0" mnemonicParsing="false" onAction="#saveToFile"
-           text="Save Receipt"/>
-   <Button fx:id="btnPrint" layoutX="305.0" layoutY="387.0" mnemonicParsing="false" onAction="#printReceipt"
-           text="Print Receipt"/>
+   <Button fx:id="btnExit" layoutX="14.0" layoutY="395.0" mnemonicParsing="false" onAction="#closeWindow" text="Quit" />
+   <Button fx:id="btnReset" layoutX="541.0" layoutY="395.0" mnemonicParsing="false" onAction="#resetForm" text="Reset" />
+   <Button fx:id="btnSave" layoutX="211.0" layoutY="395.0" mnemonicParsing="false" onAction="#saveToFile" text="Save Receipt" />
+   <Button fx:id="btnPrint" layoutX="305.0" layoutY="395.0" mnemonicParsing="false" onAction="#printReceipt" text="Print Receipt" />
+   <MenuBar prefHeight="25.0" prefWidth="600.0">
+     <menus>
+       <Menu mnemonicParsing="false" text="Commands">
+         <items>
+           <MenuItem fx:id="recalcMenu" mnemonicParsing="false" onAction="#calculateTotal" text="Recalculate" />
+               <MenuItem fx:id="saveMenu" mnemonicParsing="false" onAction="#saveToFile" text="Save Order" />
+               <MenuItem fx:id="printMenu" mnemonicParsing="false" onAction="#printReceipt" text="Print Receipt" />
+               <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem fx:id="resetMenu" mnemonicParsing="false" onAction="#resetForm" text="Reset" />
+               <MenuItem fx:id="quitMenu" mnemonicParsing="false" onAction="#closeWindow" text="Quit" />
+         </items>
+       </Menu>
+     </menus>
+   </MenuBar>
 </AnchorPane>
