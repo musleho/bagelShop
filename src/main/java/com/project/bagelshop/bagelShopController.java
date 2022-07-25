@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.print.*;
+import javax.print.attribute.*;
 
 public class bagelShopController {
     public static HashMap<String, Double> priceTable;
@@ -45,6 +47,7 @@ public class bagelShopController {
     private double subtotal;
     private double tax;
     private double total;
+    private File receipt;
 
     static { //static initializer for priceTable
         priceTable = new HashMap<>();
@@ -208,7 +211,7 @@ public class bagelShopController {
         return orderNum.toString();
     }
 
-    public void printReceipt() throws IOException {
+    public void saveToFile() throws IOException {
         calculateTotal();
         if (total == 0) {
             Alert popup = new Alert(Alert.AlertType.INFORMATION);
@@ -217,14 +220,14 @@ public class bagelShopController {
             popup.showAndWait();
         }
 
-        else {print();}
+        else {save();}
     }
 
-    private void print() throws IOException {
+    private void save() throws IOException {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String orderNum = orderNumGen();
         String lineBreak = "--------------------------";
-        File receipt = new File("src/main/files/" + date + "_" + orderNum + ".txt");
+        receipt = new File("src/main/files/" + date + "_" + orderNum + ".txt");
         PrintWriter printer = new PrintWriter(receipt);
         String bread = "";
         for (Toggle breadChoice : breadGroup.getToggles()) {
@@ -265,13 +268,48 @@ public class bagelShopController {
 
         for (String line : printInfo) {
             printer.write(line + "\n");
-            System.out.println(line);
         }
+
         printer.close();
     }
 
-    public void saveToFile() {
-        //send receipt to the printer
+    public void printToPrinter() throws IOException {
+        save();
+        PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
+        DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
+        PrintService[] ps = PrintServiceLookup.lookupPrintServices(flavor, pras);
+        PrintService defaultService = PrintServiceLookup.lookupDefaultPrintService();
+        PrintService service = ServiceUI.printDialog(null, 200, 200, ps, defaultService, flavor, pras);
+        if (service != null) {
+            try {
+                DocPrintJob job = service.createPrintJob();
+                DocAttributeSet das = new HashDocAttributeSet();
+                FileInputStream fis = new FileInputStream("src/main/files/" + receipt.getName());
+                Doc doc = new SimpleDoc(fis, flavor, das);
+                try {
+                    job.print(doc, pras);
+                    System.out.println("Job sent to printer.");
+                    //fis.close();
+                } catch (PrintException e) {
+                    System.out.println("Print error!" + e.getMessage());
+                }
+                //fis.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("File not found!" + e.getMessage());
+            }
+        }
+    }
+
+    public void printReceipt() throws IOException {
+        calculateTotal();
+        if (total == 0) {
+            Alert popup = new Alert(Alert.AlertType.INFORMATION);
+            popup.setTitle("Error");
+            popup.setContentText("Cannot save receipt for an empty order.");
+            popup.showAndWait();
+        }
+
+        else {printToPrinter();}
     }
 
 }

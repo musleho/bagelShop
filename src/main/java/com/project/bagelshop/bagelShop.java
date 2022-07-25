@@ -10,7 +10,6 @@ import java.io.IOException;
 public class bagelShop extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-//        bagelShopController.initTable();
         FXMLLoader fxmlLoader = new FXMLLoader(bagelShop.class.getResource("bagelShop.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 430);
         stage.setTitle("Sheridan Bagel Shop");
