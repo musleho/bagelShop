@@ -14,7 +14,7 @@ import javax.print.*;
 import javax.print.attribute.*;
 
 public class bagelShopController {
-    public static HashMap<String, Double> priceTable;
+
     //Bread selection
     @FXML private ToggleGroup breadGroup;
     @FXML private RadioButton radNoBread;
@@ -35,34 +35,9 @@ public class bagelShopController {
 
     @FXML private Button btnExit;
 
-    private String breadItem;
-    private int breadQty;
-    private double breadPrice;
-
-    private String coffeeItem;
-    private int coffeeQty;
-    private double coffeePrice;
-    private final ArrayList<String> toppingsList = new ArrayList<>();
-    private double toppingsPrice;
-    private double subtotal;
-    private double tax;
-    private double total;
+    private final Order order = new Order();
+    public static final OrderItem s_defaultItem = new OrderItem();
     private File receipt;
-
-    static { //static initializer for priceTable
-        priceTable = new HashMap<>();
-        priceTable.put("none", 0.0); //just a placeholder
-        priceTable.put("white", 1.25);
-        priceTable.put("whole wheat", 1.5);
-        priceTable.put("regular", 1.25);
-        priceTable.put("cappuccino", 2.0);
-        priceTable.put("cafe au lait", 1.75);
-        priceTable.put("cream cheese", 0.5);
-        priceTable.put("butter", 0.25);
-        priceTable.put("blueberry jam", 0.75);
-        priceTable.put("raspberry jam", 0.75);
-        priceTable.put("peach jelly", 0.75);
-    }
 
     public void closeWindow() {
         Stage stage = (Stage) btnExit.getScene().getWindow();
@@ -71,31 +46,143 @@ public class bagelShopController {
 
     public void enableToppings() {
         for (Node topping : toppingsPane.getChildren()) {
-            if (topping instanceof Label toppingLabel) {
-                if (!toppingLabel.getText().equals("Pick your Toppings")) {
-                    toppingLabel.setTextFill(Color.BLACK);
-                }
-            }
-            if (topping instanceof CheckBox) {
-                topping.setDisable(false);
-            }
+            topping.setDisable(false);
         }
     }
 
     public void disableToppings() {
         for (Node topping : toppingsPane.getChildren()) {
-            if (topping instanceof Label toppingLabel) {
-                if (!toppingLabel.getText().equals("Pick your Toppings")) {
-                    toppingLabel.setTextFill(Color.LIGHTGRAY);
+            topping.setDisable(true);
+        }
+    }
+
+    private void addToOrder() {
+        /**
+         * Pulls info from the GUI and passes it into the OrderItem constructor
+         * It then adds the new OrderItem object to the Order object order
+         * If the bread selection is none, it just throws a popup error box
+         */
+        //initializes the variables we will eventually pass to the OrderItem constructor
+        //could just declare them, but initializing adds extra precaution to avoid Null Pointer Exceptions downstream
+        String breadItem = getBreadType();
+        int breadQty = 0;
+        String coffeeItem = "none";
+        int coffeeQty = 0;
+        ArrayList<String> toppingList = new ArrayList<>();
+        if (!breadItem.equals("none")) {
+            breadQty = getBreadQty();
+            coffeeItem = getCoffeeType();
+            coffeeQty = getCoffeeQty();
+            toppingList = getToppingsList();
+            OrderItem newItem = new OrderItem(breadItem, breadQty, coffeeItem, coffeeQty, toppingList);
+            order.addToOrder(newItem);
+        }
+
+        else {
+            Alert popup = new Alert(Alert.AlertType.INFORMATION);
+            popup.setTitle("Error");
+            popup.setContentText("You need to select a bagel. That's why it's a BAGEL shop!");
+            popup.showAndWait();
+            resetForm();
+        }
+    }
+
+    private String getBreadType() {
+        for (Toggle bread : breadGroup.getToggles()) {
+            if (bread.isSelected()) {return ((RadioButton) bread).getText().toLowerCase();}
+        }
+        return "none";
+    }
+
+    private int getBreadQty() {
+        try { //block executes if the user enters a valid integer
+            int breadQty = Integer.parseInt(qtyBread.getText());
+            if (breadQty >= 100) { //if they try to order too much bread, set the label text and return 99
+                qtyBread.setText("99");
+                return 99;
+            }
+            else if (breadQty < 1) { //if they try to order too little bread, set the label text and return 1
+                qtyBread.setText("1");
+                return 1;
+            }
+            else return breadQty;
+        }
+        catch (NumberFormatException e) { //otherwise...
+            try { //if they entered a double, for some reason
+                int breadQty = (int) Double.parseDouble(qtyBread.getText()); //truncate a double entry to int
+                if (breadQty >= 100) { //if they try to order too much bread, set the label text and return 99
+                    qtyBread.setText("99");
+                    return 99;
+                }
+                else if (breadQty < 1) { //if they try to order too little bread, set the label text and return 1
+                    qtyBread.setText("1");
+                    return 1;
+                }
+                else { //otherwise correct the label and return the rounded value
+                    qtyBread.setText(Integer.toString(breadQty));
+                    return breadQty;
                 }
             }
-            if (topping instanceof CheckBox) {
-                topping.setDisable(true);
+            catch (NumberFormatException err) { //if they enter text or nothing, the value should autoset to 1.
+                qtyBread.setText("1");
+                return 1;
             }
         }
     }
 
-    public void calculateTotal() {
+    private String getCoffeeType() {
+        for (Toggle coffee : coffeeGroup.getToggles()) {
+            if (coffee.isSelected()) {return ((RadioButton) coffee).getText().toLowerCase();}
+        }
+        return "none";
+    }
+
+    private int getCoffeeQty() {
+        String coffeeType = getCoffeeType();
+        if (coffeeType.equals("none")) return 0; //should only be zero if they do not order any type of coffee
+        else {
+            try {
+                int coffeeQty = Integer.parseInt(qtyCoffee.getText());
+                if (coffeeQty >= 100) { //if they try to order too much coffee, set the label text and return 99
+                    qtyCoffee.setText("99");
+                    return 99;
+                } else if (coffeeQty < 1) { //if they try to order too little coffee, set the label text and return 1
+                    qtyCoffee.setText("1");
+                    return 1;
+                } else return coffeeQty;
+            } catch (NumberFormatException e) {
+                try {
+                    int coffeeQty = (int) Double.parseDouble(qtyCoffee.getText()); //truncate a double entry to int
+                    if (coffeeQty >= 100) { //if they try to order too much coffee, set the label text and return 99
+                        qtyCoffee.setText("99");
+                        return 99;
+                    } else if (coffeeQty < 1) { //if they try to order too little coffee, set the label text and return 1
+                        qtyCoffee.setText("1");
+                        return 1;
+                    } else { //otherwise correct the label and return the rounded value
+                        qtyCoffee.setText(Integer.toString(coffeeQty));
+                        return coffeeQty;
+                    }
+                } catch (NumberFormatException err) {
+                    qtyCoffee.setText("1"); //if they enter text or nothing, the value should autoset to 1.
+                    return 1;
+                }
+            }
+        }
+    }
+
+    private ArrayList<String> getToppingsList() {
+        ArrayList<String> toppingsList = new ArrayList<>();
+        for (Node topping : toppingsPane.getChildren()) {
+            if (topping instanceof CheckBox) { //if the node is a checkbox
+                if (((CheckBox) topping).isSelected()) //and that checkbox is selected
+                    toppingsList.add(((CheckBox) topping).getText().toLowerCase()); //add it to the toppings list
+            }
+        }
+        return toppingsList;
+    }
+
+    private void calculateTotal() {
         if (radNoBread.isSelected()) {
             //set the labels to 0
             lblSubtotal.setText("$0.00");
@@ -117,52 +204,6 @@ public class bagelShopController {
         }
 
         else {calculate();}
-    }
-
-    private void getBreadPrice() {
-        breadPrice = 0;
-
-        try {breadQty = Integer.parseInt(qtyBread.getText());}
-        catch (NumberFormatException e) {breadQty = 1;}
-
-        for (Toggle breadChoice : breadGroup.getToggles()) {
-            if (breadChoice.isSelected()) {
-                breadItem = ((RadioButton) breadChoice).getText();
-                breadPrice = priceTable.get(breadItem.toLowerCase()) * breadQty;
-                break;
-            }
-        }
-    }
-
-    private void getCoffeePrice() {
-        coffeePrice = 0;
-
-        try {coffeeQty = Integer.parseInt(qtyCoffee.getText());}
-        catch (NumberFormatException e) {coffeeQty = 1;}
-
-        for (Toggle coffeeChoice : coffeeGroup.getToggles()) {
-            if (coffeeChoice.isSelected()) {
-                coffeeItem = ((RadioButton) coffeeChoice).getText();
-                coffeePrice = priceTable.get(coffeeItem.toLowerCase()) * coffeeQty;
-            }
-        }
-    }
-
-    private void getToppingsPrice() {
-        toppingsPrice = 0;
-        toppingsList.clear();
-        for (Node topping : toppingsPane.getChildren()) {
-            if (topping instanceof CheckBox) {
-                if (((CheckBox) topping).isSelected()) {
-                    String toppingText = ((CheckBox) topping).getText();
-                    toppingsPrice += priceTable.get(toppingText.toLowerCase()) * breadQty;
-                    String price = "$" + String.format("%.2f", (priceTable.get(toppingText.toLowerCase()) * breadQty));
-                    String tabs = toppingText.equalsIgnoreCase("butter") ? "\t\t\t\t"
-                                    : toppingText.equalsIgnoreCase("peach jelly") ? "\t\t\t" : "\t\t";
-                    toppingsList.add("\n\t" + (toppingText + tabs + price));
-                }
-            }
-        }
     }
 
     private void calculate() {
@@ -202,15 +243,6 @@ public class bagelShopController {
         disableToppings();
     }
 
-    public String orderNumGen() {
-        StringBuilder orderNum = new StringBuilder();
-        for (int i = 0; i < 5; i++) {
-            Random rand = new Random();
-            orderNum.append(rand.nextInt(10));
-        }
-        return orderNum.toString();
-    }
-
     public void saveToFile() throws IOException {
         calculateTotal();
         if (total == 0) {
@@ -224,8 +256,6 @@ public class bagelShopController {
     }
 
     private void save() throws IOException {
-        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        String orderNum = orderNumGen();
         String lineBreak = "--------------------------";
         receipt = new File("src/main/files/" + date + "_" + orderNum + ".txt");
         PrintWriter printer = new PrintWriter(receipt);
@@ -284,19 +314,18 @@ public class bagelShopController {
             try {
                 DocPrintJob job = service.createPrintJob();
                 DocAttributeSet das = new HashDocAttributeSet();
-                FileInputStream fis = new FileInputStream("src/main/files/" + receipt.getName());
-                Doc doc = new SimpleDoc(fis, flavor, das);
+                FileReader fr = new FileReader("src/main/files/" + receipt.getName());
+                Doc doc = new SimpleDoc(fr, flavor, das);
+
                 try {
                     job.print(doc, pras);
                     System.out.println("Job sent to printer.");
-                    //fis.close();
-                } catch (PrintException e) {
-                    System.out.println("Print error!" + e.getMessage());
                 }
-                //fis.close();
-            } catch (FileNotFoundException e) {
-                System.out.println("File not found!" + e.getMessage());
+
+                catch (PrintException e) {System.out.println("Print error!" + e.getMessage());}
             }
+
+            catch (FileNotFoundException e) {System.out.println("File not found!" + e.getMessage());}
         }
     }
 
