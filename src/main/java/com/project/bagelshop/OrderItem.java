@@ -14,7 +14,7 @@ import java.util.HashMap;
  */
 
 public class OrderItem {
-    private static HashMap<String, Double> priceTable;
+    private static HashMap<String, Double> priceTable; //IDEA thinks this should be final except I initialize it later
     public static final String[] validToppings = {"cream cheese", "butter", "blueberry jam",
             "raspberry jam", "peach jelly"};
     private int itemID;
@@ -33,6 +33,7 @@ public class OrderItem {
     private final ArrayList<String> toppingsList = new ArrayList<>();
     private double toppingsPrice;
     private double subtotal;
+    private String receiptEntry;
 
     //static initializer for priceTable
     static {
@@ -52,11 +53,11 @@ public class OrderItem {
 
     /**
      * @Constructor with params to build new line items
-     * @param breadItem type of bread in this line item as String
-     * @param breadQty number of bagels in this line item as int
-     * @param coffeeItem type of coffee in this line item as String
-     * @param coffeeQty number of coffees in this line item
-     * @param toppingsList ArrayList of toppings for the bagels in this line item
+     * @param breadItem String - type of bread in this line item as String
+     * @param breadQty int - number of bagels in this line item as int
+     * @param coffeeItem String - type of coffee in this line item as String
+     * @param coffeeQty int - number of coffees in this line item
+     * @param toppingsList ArrayList - Strings of toppings for the bagels in this line item
      */
     protected OrderItem(String breadItem, int breadQty, String coffeeItem, int coffeeQty,
                         @NotNull ArrayList<String> toppingsList) {
@@ -183,9 +184,11 @@ public class OrderItem {
         return this.toppingsPrice;
     }
 
-    protected double getSubtotal() {
+    protected double getSubtotalAsDouble() {
         return this.subtotal;
-    }
+    } //for calculation
+
+    protected String getSubtotalAsString() {return String.format("$%.2f", this.subtotal);} //for printing
 
     private void calculatePrices() {
         setBreadPrice();
@@ -193,5 +196,28 @@ public class OrderItem {
         setToppingsPrice();
         subtotal = breadPrice + coffeePrice + toppingsPrice;
     }
+
+    private void setReceiptEntry() {
+        if (breadItem.equalsIgnoreCase("none")) {
+            receiptEntry = "";
+        }
+        else {
+            String lineBreak = "--------------------------";
+            String bread = breadItem + "\t" + breadQty + "\t\t" + breadPrice;
+
+            String coffee = "\n";
+            if (!coffeeItem.equalsIgnoreCase("none")) {
+                coffee = "\n" + coffeeItem + "\t" + coffeeQty + "\t\t" + coffeePrice;
+            }
+            coffee += "\n" + lineBreak;
+
+            StringBuilder toppings = new StringBuilder();
+            for (String topping : toppingsList) {
+                toppings.append(topping);
+            }
+        }
+    }
+
+    protected String getReceiptEntry() {return this.receiptEntry;}
 
 }

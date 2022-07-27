@@ -36,7 +36,8 @@ public class bagelShopController {
     @FXML private Button btnExit;
 
     private final Order order = new Order();
-    public static final OrderItem s_defaultItem = new OrderItem();
+    public static final OrderItem s_defaultItem = new OrderItem(); //used to call OrderItem methods before formally constructing an order item to add to the order
+    public static final IOHandler ioHandler = new IOHandler();
     private File receipt;
 
     public void closeWindow() {
@@ -189,31 +190,14 @@ public class bagelShopController {
             lblTax.setText("$0.00");
             lblTotal.setText("$0.00");
 
-            //set the instance variables to defaults
-            breadItem = "None";
-            breadQty = 0;
-            breadPrice = 0;
-            coffeeItem = "None";
-            coffeeQty = 0;
-            coffeePrice = 0;
-            toppingsPrice = 0;
-            toppingsList.clear();
-            subtotal = 0;
-            tax = 0;
-            total = 0;
         }
 
         else {calculate();}
     }
 
-    private void calculate() {
-        getBreadPrice(); getCoffeePrice(); getToppingsPrice(); //calculate the prices for each
-        subtotal = breadPrice + coffeePrice + toppingsPrice;
-        tax = subtotal * 0.13;
-        total = subtotal + tax;
-
+    private void calculateOrderSubtotal() {
         //if the subtotal is too high or user inputs invalid order quantities, reject the order and reset.
-        if (subtotal >= 100 || breadQty < 1 || coffeeQty < 0) {
+        if (order.getSubtotalAsDouble() >= 100) {
             Alert popup = new Alert(Alert.AlertType.INFORMATION);
             popup.setTitle("Error");
             popup.setContentText("Looks like you're doing something odd!");
@@ -223,9 +207,9 @@ public class bagelShopController {
 
         //otherwise, update the labels
         else {
-            lblSubtotal.setText("$" + String.format("%.2f", subtotal));
-            lblTax.setText("$" + String.format("%.2f", tax));
-            lblTotal.setText("$" + String.format("%.2f", total));
+            lblSubtotal.setText(order.getSubtotalAsString());
+            lblTax.setText(order.getTaxAsString());
+            lblTotal.setText(order.getTotalAsString());
         }
     }
 
@@ -252,56 +236,10 @@ public class bagelShopController {
             popup.showAndWait();
         }
 
-        else {save();}
+        else {ioHandler.createReceipt(order);}
     }
 
-    private void save() throws IOException {
-        String lineBreak = "--------------------------";
-        receipt = new File("src/main/files/" + date + "_" + orderNum + ".txt");
-        PrintWriter printer = new PrintWriter(receipt);
-        String bread = "";
-        for (Toggle breadChoice : breadGroup.getToggles()) {
-            if (breadChoice.isSelected()) {
-                String price = "$" +  String.format("%.2f", breadPrice);
-                bread = breadItem + "\t" + breadQty + "\t\t" + price;
-                break;
-            }
-        }
 
-        String coffee = "\n";
-        for (Toggle coffeeChoice : coffeeGroup.getToggles()) {
-            if (coffeeChoice.isSelected() && !((RadioButton) coffeeChoice).getText().equals("None")) {
-                String price = "$" +  String.format("%.2f", coffeePrice);
-                coffee = "\n" + coffeeItem + "\t" + coffeeQty + "\t\t" + price;
-                break;
-            }
-        }
-        coffee += "\n"+lineBreak;
-
-        StringBuilder toppings = new StringBuilder();
-        for (String topping : toppingsList) {
-            toppings.append(topping);
-        }
-
-        String[] printInfo = {
-                "Sheridan Bagel Shop",
-                date,
-                "Order Number: " + orderNum,
-                lineBreak,
-                bread,
-                toppings.toString(),
-                coffee,
-                "\t\t\tSubtotal: $" + String.format("%.2f", subtotal),
-                "\t\t\tTax: $" + String.format("%.2f", tax),
-                "\t\t\tTotal: $" + String.format("%.2f", total)
-        };
-
-        for (String line : printInfo) {
-            printer.write(line + "\n");
-        }
-
-        printer.close();
-    }
 
     public void printToPrinter() throws IOException {
         save();
