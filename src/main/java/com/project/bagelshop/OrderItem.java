@@ -14,20 +14,22 @@ import java.util.HashMap;
  */
 
 public class OrderItem {
+
+    //DONE: Add method for editing OrderItems
     private static HashMap<String, Double> priceTable; //IDEA thinks this should be final except I initialize it later
     public static final String[] validToppings = {"cream cheese", "butter", "blueberry jam",
             "raspberry jam", "peach jelly"};
-    private int itemID;
+    private int itemID; //corresponds to item's index in the order list (see Order class)
 
     //Fields for the bread
-    private String breadItem;
-    private int breadQty;
-    private double breadPrice;
+    private String breadItem; //name of the bread item (none, white, or wheat)
+    private int breadQty; //duh
+    private double breadPrice; //duh
 
     //Fields for the coffee
-    private String coffeeItem;
-    private int coffeeQty;
-    private double coffeePrice;
+    private String coffeeItem; //duh
+    private int coffeeQty; //duh
+    private double coffeePrice; //duh
 
     //Fields for the toppings
     private final ArrayList<String> toppingsList = new ArrayList<>();
@@ -60,15 +62,8 @@ public class OrderItem {
      * @param toppingsList ArrayList - Strings of toppings for the bagels in this line item
      */
     protected OrderItem(String breadItem, int breadQty, String coffeeItem, int coffeeQty,
-                        @NotNull ArrayList<String> toppingsList) {
-        setBreadItem(breadItem);
-        setBreadQty(breadQty);
-        setCoffeeItem(coffeeItem);
-        setCoffeeQty(coffeeQty);
-        for (String topping : toppingsList) {
-            addTopping(topping);
-        }
-        calculatePrices();
+                        ArrayList<String> toppingsList) {
+        updateItem(breadItem, breadQty, coffeeItem, coffeeQty, toppingsList);
     }
 
     /**
@@ -76,6 +71,18 @@ public class OrderItem {
      */
     protected OrderItem() {
         reset();
+    }
+
+    protected void updateItem(String breadItem, int breadQty, String coffeeItem, int coffeeQty,
+                              ArrayList<String> toppingsList) {
+        if (!breadItem.equalsIgnoreCase(this.breadItem)) setBreadItem(breadItem);
+        if (breadQty != this.breadQty) setBreadQty(breadQty);
+        if (!coffeeItem.equalsIgnoreCase(this.coffeeItem)) setCoffeeItem(coffeeItem);
+        if (coffeeQty != this.coffeeQty) setCoffeeQty(coffeeQty);
+        for (String topping : toppingsList) {
+            addTopping(topping);
+        }
+        calculatePrices();
     }
 
     protected void reset() {
@@ -93,7 +100,7 @@ public class OrderItem {
     //Getters and setters
     protected int getItemID() {
         return itemID;
-    }
+    } //likely useful for associating remove button with order item
 
     protected void setItemID(int id) {
         itemID = id;
@@ -103,7 +110,7 @@ public class OrderItem {
         return breadItem;
     }
 
-    protected void setBreadItem(@NotNull String breadItem) {
+    protected void setBreadItem(String breadItem) {
         if (breadItem.equalsIgnoreCase("white") || breadItem.equalsIgnoreCase("wheat")) {
             this.breadItem = breadItem;
         } else {
@@ -190,11 +197,12 @@ public class OrderItem {
 
     protected String getSubtotalAsString() {return String.format("$%.2f", this.subtotal);} //for printing
 
-    private void calculatePrices() {
+    protected void calculatePrices() {
         setBreadPrice();
         setCoffeePrice();
         setToppingsPrice();
         subtotal = breadPrice + coffeePrice + toppingsPrice;
+        setReceiptEntry();
     }
 
     private void setReceiptEntry() {

@@ -10,6 +10,7 @@ import javax.print.attribute.*;
 
 public class IOHandler {
     private String folder;
+    private File receipt; //the current receipt
 
     public void setFolder(String folder) {
         if (folder.substring(folder.length()-1).equalsIgnoreCase("/")) {
@@ -21,31 +22,37 @@ public class IOHandler {
     public String getFolder() {return this.folder;}
 
     public void createReceipt(Order order) throws IOException {
-        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        String lineBreak = "\n------------------------------------";
-        String doubleBreak = lineBreak + lineBreak;
-        File receipt = new File(folder + order.getOrderNum());
+        receipt = new File(folder + order.getOrderNum());
         PrintWriter printer = new PrintWriter(receipt);
-        StringBuilder itemEntries = new StringBuilder();
-        for (OrderItem item : order.getOrder()) {
-            itemEntries.append(item.getReceiptEntry()).append(lineBreak).append("\n");
-        }
-        String[] printInfo = {
-                "Sheridan Bagel Shop",
-                date,
-                "Order Number: " + order.getOrderNum(),
-                doubleBreak,
-                itemEntries.toString(),
-                doubleBreak,
-                "Subtotal: " + order.getSubtotalAsString(),
-                "Tax: " + order.getTaxAsString(),
-                "Total: " + order.getTotalAsString()
-        };
-
-        for (String line : printInfo) {
+        for (String line : order.getReceipt()) {
             printer.write(line + "\n");
         }
-
         printer.close();
     }
+
+    public void printToPrinter(Order order) throws IOException {
+        if (receipt == null) {
+            createReceipt(order);
+        }
+        PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
+        DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
+        PrintService[] ps = PrintServiceLookup.lookupPrintServices(flavor, pras);
+        PrintService defaultService = PrintServiceLookup.lookupDefaultPrintService();
+        PrintService service = ServiceUI.printDialog(null, 200, 200, ps, defaultService, flavor, pras);
+        if (service != null) {
+            try {
+                DocPrintJob job = service.createPrintJob();
+                DocAttributeSet das = new HashDocAttributeSet();
+                FileReader fr = new FileReader(receipt);
+                Doc doc = new SimpleDoc(fr, flavor, das);
+                try {
+                    job.print(doc, pras);
+                    System.out.println("Job sent to printer.");
+                }
+                catch (PrintException e) {System.out.println("Print error!" + e.getMessage());}
+            }
+            catch (FileNotFoundException e) {System.out.println("File not found!" + e.getMessage());}
+        }
+    }
+
 }

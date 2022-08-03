@@ -62,7 +62,7 @@
       <Label layoutX="48.0" layoutY="25.0" text="Subtotal" />
       <Label layoutX="48.0" layoutY="52.0" text="Sales Tax (13%)" />
       <Label layoutX="48.0" layoutY="79.0" text="Total" />
-      <Button fx:id="btnCalculate" layoutX="94.0" layoutY="112.0" mnemonicParsing="false" onAction="#calculateTotal" text="Recalculate" />
+      <Button fx:id="btnCalculate" layoutX="94.0" layoutY="112.0" mnemonicParsing="false" onAction="#calculateOrder" text="Recalculate" />
       <Label fx:id="lblSubtotal" layoutX="186.0" layoutY="25.0" text="\$0.00" />
       <Label fx:id="lblTax" layoutX="186.0" layoutY="52.0" text="\$0.00" />
       <Label fx:id="lblTotal" layoutX="186.0" layoutY="79.0" text="\$0.00" />
