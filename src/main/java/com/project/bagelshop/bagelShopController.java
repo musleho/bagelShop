@@ -57,7 +57,7 @@ public class bagelShopController {
     }
 
     private void addToOrder() {
-        /**
+        /*
          * Pulls info from the GUI and passes it into the OrderItem constructor
          * It then adds the new OrderItem object to the Order object order
          * If the bread selection is none, it just throws a popup error box
@@ -66,9 +66,9 @@ public class bagelShopController {
         //could just declare them, but initializing adds extra precaution to avoid Null Pointer Exceptions downstream
         String breadItem = getBreadType();
         int breadQty;
-        String coffeeItem = "none";
+        String coffeeItem;
         int coffeeQty;
-        ArrayList<String> toppingList = new ArrayList<>();
+        ArrayList<String> toppingList;
         if (!breadItem.equals("none")) {
             breadQty = getQty(qtyBread);
             coffeeItem = getCoffeeType();
