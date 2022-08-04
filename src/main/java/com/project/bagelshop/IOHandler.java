@@ -1,28 +1,16 @@
 package com.project.bagelshop;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
 import java.io.*;
 
-import org.json.*;
 import javax.print.*;
 import javax.print.attribute.*;
 
 public class IOHandler {
-    private String folder;
     private File receipt; //the current receipt
 
-    public void setFolder(String folder) {
-        if (folder.substring(folder.length()-1).equalsIgnoreCase("/")) {
-            this.folder = folder;
-        }
-        else {this.folder = folder + "/";}
-    }
-
-    public String getFolder() {return this.folder;}
-
     public void createReceipt(Order order) throws IOException {
-        receipt = new File(folder + order.getOrderNum());
+        String folder = "src/main/files/"; //default file path
+        receipt = new File(folder + order.getOrderNum() + ".txt");
         PrintWriter printer = new PrintWriter(receipt);
         for (String line : order.getReceipt()) {
             printer.write(line + "\n");

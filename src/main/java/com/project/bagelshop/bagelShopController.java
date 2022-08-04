@@ -1,5 +1,6 @@
 package com.project.bagelshop;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -28,16 +29,30 @@ public class bagelShopController {
     @FXML private Pane toppingsPane; //contains labels and checkboxes for toppings
 
     //Price Displays
-    @FXML private Label lblSubtotal; //label for subtotal
-    @FXML private Label lblTax; //label for tax
-    @FXML private Label lblTotal; //label for total
+    @FXML private Label itemSubtotal; //label for subtotal
+    @FXML private Label itemTax; //label for tax
+    @FXML private Label itemTotal; //label for total
+
+    //Order Elements
+    @FXML private Pane itemPanes; //contains the list of items in the order
+
+    //Buttons for removing particular elements
+    @FXML private Button remove0;
+    @FXML private Button remove1;
+    @FXML private Button remove2;
+    @FXML private Button remove3;
+    @FXML private Button remove4;
+    @FXML private Button remove5;
+
+    @FXML private Label orderSubtotal; //label for subtotal
+    @FXML private Label orderTax; //label for tax
+    @FXML private Label orderTotal; //label for total
 
     @FXML private Button btnExit; //exit button
 
-    private final Order order = new Order(); //contains the order information
+    private Order order = new Order(); //contains the order information
     public static final OrderItem s_defaultItem = new OrderItem(); //used to call OrderItem methods before formally constructing an order item to add to the order
     public static final IOHandler ioHandler = new IOHandler();
-    private File receipt; //probably will be removed and delegated to IOHandler
 
     public void closeWindow() {
         Stage stage = (Stage) btnExit.getScene().getWindow();
@@ -52,10 +67,12 @@ public class bagelShopController {
 
     public void disableToppings() {
         for (Node topping : toppingsPane.getChildren()) {
-            topping.setDisable(true);
+            if (!(topping instanceof Label label && label.getText().contains("Pick")))
+                topping.setDisable(true);
         }
     }
-
+//-------------------------------------------FOR MODIFYING THE ORDER---------------------------------------------------
+    @FXML
     private void addToOrder() {
         /*
          * Pulls info from the GUI and passes it into the OrderItem constructor
@@ -69,28 +86,128 @@ public class bagelShopController {
         String coffeeItem;
         int coffeeQty;
         ArrayList<String> toppingList;
-        if (!breadItem.equals("none")) {
+        Alert popup = new Alert(Alert.AlertType.INFORMATION);
+        popup.setTitle("Error");
+        if (!breadItem.equalsIgnoreCase("none")) {
             breadQty = getQty(qtyBread);
             coffeeItem = getCoffeeType();
             coffeeQty = getQty(qtyCoffee);
             toppingList = getToppingsList();
             OrderItem newItem = new OrderItem(breadItem, breadQty, coffeeItem, coffeeQty, toppingList);
             newItem.calculatePrices();
-            order.addToOrder(newItem);
+            boolean successful = order.addToOrder(newItem);
+            if (successful) {
+                popup.setTitle("Confirmed!");
+                popup.setContentText("Your item has been added to your order!");
+                setItemDisables();
+            }
+            else {
+                popup.setContentText("Looks like your order is too big! Try removing or modifying an item.");
+            }
         }
 
         else {
-            Alert popup = new Alert(Alert.AlertType.INFORMATION);
             popup.setTitle("Error");
             popup.setContentText("You need to select a bagel. That's why it's a BAGEL shop!");
-            popup.showAndWait();
             //resetForm(); //maybe not needed
+        }
+        popup.showAndWait();
+        updateOrderPrices();
+    }
+
+    public void hideElements(Pane pane) {
+        if (pane.getChildren().size() > 0) {
+            for (Node child : pane.getChildren()) {
+                child.setDisable(true);
+                child.setStyle("-fx-text-fill: white; -fx-background-color: white;");
+            }
         }
     }
 
+    public void showElements(Pane pane) {
+        if (pane.getChildren().size() > 0) {
+            for (Node child : pane.getChildren()) {
+                child.setDisable(false);
+                if (child instanceof Button removeButton) removeButton.setStyle("-fx-text-fill: red; -fx-background-color: white;");
+                else child.setStyle("-fx-text-fill: black;");
+            }
+        }
+    }
+
+    public void setItemDisables() {
+        for (int i = 0; i < 6; i++){
+            try {
+                OrderItem currentItem = order.getOrder().get(i);
+                Pane currentPane = (Pane) itemPanes.getChildren().get(i); //gets whichever entry in the list we need to access
+                showElements(currentPane);
+                for (Node child : currentPane.getChildren()) {
+                    if (child instanceof Label item) {
+                        if (!item.getText().contains("$"))
+                            item.setText(currentItem.getBreadItem());
+                        else item.setText(currentItem.getSubtotalAsString());
+                    }
+                }
+            }
+            catch (IndexOutOfBoundsException e) { //for items in orders of less than six.
+                Pane currentPane = (Pane) itemPanes.getChildren().get(i); //gets whichever entry in the list we need to access
+                hideElements(currentPane);
+                for (Node child : currentPane.getChildren()) {
+                    if (child instanceof Label item && !item.getText().contains("$")) {
+                        item.setText("None.");
+                    }
+                }
+            }
+        }
+    }
+
+    @FXML
+    public void removeItem(ActionEvent e) {
+        Button[] removeButtons = {remove0, remove1, remove2, remove3, remove4, remove5};
+        Button source = (Button) e.getSource();
+        for (int i = 0; i < removeButtons.length; i++) {
+            if (removeButtons[i].equals(source)) {
+                order.removeItem(i);
+            }
+        }
+        setItemDisables();
+        updateOrderPrices();
+    }
+
+    private void updateOrderPrices() {
+        orderSubtotal.setText(order.getSubtotalAsString());
+        orderTax.setText(order.getTaxAsString());
+        orderTotal.setText(order.getTotalAsString());
+    }
+
+    @FXML
+    public void confirmOrder() throws IOException {
+        Alert popup = new Alert(Alert.AlertType.INFORMATION);
+        if (order.getTotalAsDouble() > 0) {
+            System.out.println(order.getTotalAsDouble());
+            popup.setTitle("Confirmed!");
+            popup.setContentText("Your order has been confirmed! Thanks!");
+            popup.showAndWait();
+            saveToFile();
+            printReceipt();
+            cancelOrder(); //resets everything after saving and printing
+        }
+        else {
+            popup.setTitle("Error!");
+            popup.setContentText("Cannot place an empty order");
+            popup.showAndWait();
+        }
+    }
+    @FXML
+    public void cancelOrder() {
+        resetForm();
+        order = new Order();
+        setItemDisables();
+    }
+
+//-------------------------------------------FOR DEALING WITH THE ITEM--------------------------------------------------
     private String getBreadType() {
         for (Toggle bread : breadGroup.getToggles()) {
-            if (bread.isSelected()) {return ((RadioButton) bread).getText().toLowerCase();}
+            if (bread.isSelected()) {return ((RadioButton) bread).getText();}
         }
         return "none";
     }
@@ -133,7 +250,7 @@ public class bagelShopController {
 
     private String getCoffeeType() {
         for (Toggle coffee : coffeeGroup.getToggles()) {
-            if (coffee.isSelected()) {return ((RadioButton) coffee).getText().toLowerCase();}
+            if (coffee.isSelected()) {return ((RadioButton) coffee).getText();}
         }
         return "none";
     }
@@ -143,23 +260,18 @@ public class bagelShopController {
         for (Node topping : toppingsPane.getChildren()) {
             if (topping instanceof CheckBox) { //if the node is a checkbox
                 if (((CheckBox) topping).isSelected()) //and that checkbox is selected
-                    toppingsList.add(((CheckBox) topping).getText().toLowerCase()); //add it to the toppings list
+                    toppingsList.add(((CheckBox) topping).getText()); //add it to the toppings list
             }
         }
         return toppingsList;
     }
 
     @FXML
-    private void calculateTotal() {
-        if (radNoBread.isSelected()) {
-            //set the labels to 0
-            lblSubtotal.setText("$0.00");
-            lblTax.setText("$0.00");
-            lblTotal.setText("$0.00");
-
-        }
-
-        else {s_defaultItem.calculatePrices();}
+    private void updateFields() {
+        s_defaultItem.updateItem(getBreadType(), getQty(qtyBread), getCoffeeType(), getQty(qtyCoffee), getToppingsList());
+        itemSubtotal.setText(s_defaultItem.getSubtotalAsString());
+        itemTax.setText(s_defaultItem.getTaxAsString());
+        itemTotal.setText(s_defaultItem.getTotalAsString());
     }
 
     @FXML
@@ -175,9 +287,9 @@ public class bagelShopController {
 
         //otherwise, update the labels
         else {
-            lblSubtotal.setText(order.getSubtotalAsString());
-            lblTax.setText(order.getTaxAsString());
-            lblTotal.setText(order.getTotalAsString());
+            orderSubtotal.setText(order.getSubtotalAsString());
+            orderTax.setText(order.getTaxAsString());
+            orderTotal.setText(order.getTotalAsString());
         }
     }
 
@@ -192,7 +304,7 @@ public class bagelShopController {
         qtyBread.setText("");
         qtyCoffee.setText("");
         s_defaultItem.reset();
-        //should call update() method
+        updateFields();
         disableToppings();
     }
 
@@ -215,7 +327,7 @@ public class bagelShopController {
 
     @FXML
     public void printReceipt() throws IOException {
-        calculateTotal();
+        calculateOrder();
         if (order.getTotalAsDouble() == 0) {
             Alert popup = new Alert(Alert.AlertType.INFORMATION);
             popup.setTitle("Error");

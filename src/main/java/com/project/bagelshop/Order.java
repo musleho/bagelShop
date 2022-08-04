@@ -18,9 +18,10 @@ public class Order {
     }
     protected boolean addToOrder(OrderItem newItem) {
         double postSubtotal = this.subtotal + newItem.getSubtotalAsDouble(); //determine what the subtotal would be after adding the new item
-        if (order.size() < 10 && postSubtotal <= 100) { //if you have less than ten items and the order won't go over $100.00
+        if (order.size() < 6 && postSubtotal <= 100) { //if you have less than ten items and the order won't go over $100.00
             newItem.setItemID(order.size()); //set the new item's ID - could call updateItemIDs to be safer but this should always work
             this.order.add(newItem); //add the item to the order
+            setPrices(); //ensures that the prices are recalculated when a new item is added
             return true; //shows that adding to order was done successfully, to be passed to controller for GUI output
         }
         return false; //shows that we could not add to order, to be passed to controller for GUI output
@@ -31,7 +32,7 @@ public class Order {
         StringBuilder orderNum = new StringBuilder();
         for (int i = 0; i < 5; i++) {
             Random rand = new Random();
-            orderNum.append(rand.nextInt(10));
+            orderNum.append(rand.nextInt(6));
         }
         this.orderNum = date + "_" + orderNum; //just makes the order number the date and a random 5-digit sequence
     }
@@ -53,7 +54,21 @@ public class Order {
         }
     }
 
+    private void updateOrder(int itemID, String breadItem, int breadQty, String coffeeItem, int coffeeQty,
+                             ArrayList<String> toppingsList) {
+        order.get(itemID).updateItem(breadItem, breadQty, coffeeItem, coffeeQty,
+                                     toppingsList);
+        setPrices(); //ensures prices are updated when an order item is changed.
+    }
+
+    protected void removeItem(int itemID) {
+        order.remove(itemID);
+        updateItemIDs();
+        setPrices();
+    }
+
     public void setPrices() {
+        subtotal = 0;
         if (order.size() > 0) {
             for (OrderItem item : order) {
                 subtotal += item.getSubtotalAsDouble();
@@ -67,6 +82,7 @@ public class Order {
             tax = 0;
             total = 0;
         }
+        createReceipt();
     }
 
     public double getSubtotalAsDouble() {
@@ -76,8 +92,6 @@ public class Order {
     public String getSubtotalAsString() {
         return String.format("$%.2f", this.subtotal);
     }
-
-    public double getTaxAsDouble() {return this.tax;}
 
     public String getTaxAsString() {return String.format("$%.2f",this.tax);}
 

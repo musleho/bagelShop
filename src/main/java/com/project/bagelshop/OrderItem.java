@@ -1,7 +1,5 @@
 package com.project.bagelshop;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,8 +12,6 @@ import java.util.HashMap;
  */
 
 public class OrderItem {
-
-    //DONE: Add method for editing OrderItems
     private static HashMap<String, Double> priceTable; //IDEA thinks this should be final except I initialize it later
     public static final String[] validToppings = {"cream cheese", "butter", "blueberry jam",
             "raspberry jam", "peach jelly"};
@@ -35,6 +31,8 @@ public class OrderItem {
     private final ArrayList<String> toppingsList = new ArrayList<>();
     private double toppingsPrice;
     private double subtotal;
+    private double tax;
+    private double total;
     private String receiptEntry;
 
     //static initializer for priceTable
@@ -83,6 +81,7 @@ public class OrderItem {
             addTopping(topping);
         }
         calculatePrices();
+        setReceiptEntry();
     }
 
     protected void reset() {
@@ -98,10 +97,6 @@ public class OrderItem {
     }
 
     //Getters and setters
-    protected int getItemID() {
-        return itemID;
-    } //likely useful for associating remove button with order item
-
     protected void setItemID(int id) {
         itemID = id;
     }
@@ -111,7 +106,7 @@ public class OrderItem {
     }
 
     protected void setBreadItem(String breadItem) {
-        if (breadItem.equalsIgnoreCase("white") || breadItem.equalsIgnoreCase("wheat")) {
+        if (breadItem.equalsIgnoreCase("white") || breadItem.equalsIgnoreCase("whole wheat")) {
             this.breadItem = breadItem;
         } else {
             this.breadItem = "none";
@@ -132,7 +127,7 @@ public class OrderItem {
     }
 
     protected void setBreadPrice() {
-        breadPrice = priceTable.get(breadItem) * breadQty;
+        breadPrice = priceTable.get(breadItem.toLowerCase()) * breadQty;
     }
 
     protected String getCoffeeItem() {
@@ -158,7 +153,9 @@ public class OrderItem {
     }
 
     protected void setCoffeePrice() {
-        this.coffeePrice = priceTable.get(coffeeItem.toLowerCase()) * coffeeQty;
+        if (!this.breadItem.equalsIgnoreCase("none"))
+            this.coffeePrice = priceTable.get(coffeeItem.toLowerCase()) * coffeeQty;
+        else this.coffeePrice = 0; //cannot order coffee without a bagel
     }
 
     protected void setCoffeeQty(int coffeeQty) {
@@ -170,20 +167,22 @@ public class OrderItem {
         return toppingsList;
     }
 
-    protected void addTopping(String topping) {
+    protected void addTopping(String rawTopping) {
+        String topping = rawTopping.toLowerCase();
         boolean isValid = false;
         for (String validTopping : validToppings) {
-            if (topping.equalsIgnoreCase(validTopping)) {
+            if (topping.equals(validTopping)) {
                 isValid = true;
                 break;
             }
         }
-        if (isValid) toppingsList.add(topping);
+        if (isValid && !toppingsList.contains(topping)) toppingsList.add(rawTopping);
     }
 
     protected void setToppingsPrice() {
+        toppingsPrice = 0;
         for (String topping : toppingsList) {
-            toppingsPrice += priceTable.get(topping) * breadQty;
+            toppingsPrice += priceTable.get(topping.toLowerCase()) * breadQty;
         }
     }
 
@@ -197,11 +196,17 @@ public class OrderItem {
 
     protected String getSubtotalAsString() {return String.format("$%.2f", this.subtotal);} //for printing
 
+    protected String getTaxAsString() {return String.format("$%.2f", this.tax);} //for label updating
+
+    protected String getTotalAsString() {return String.format("$%.2f", this.total);} //for label updating
+
     protected void calculatePrices() {
         setBreadPrice();
         setCoffeePrice();
         setToppingsPrice();
         subtotal = breadPrice + coffeePrice + toppingsPrice;
+        tax = subtotal * 0.13;
+        total = subtotal + tax;
         setReceiptEntry();
     }
 
@@ -210,7 +215,7 @@ public class OrderItem {
             receiptEntry = "";
         }
         else {
-            String lineBreak = "--------------------------";
+            String lineBreak = "--------------------------\n";
             String bread = breadItem + "\t" + breadQty + "\t\t" + breadPrice;
 
             String coffee = "\n";
@@ -221,8 +226,10 @@ public class OrderItem {
 
             StringBuilder toppings = new StringBuilder();
             for (String topping : toppingsList) {
-                toppings.append(topping);
+                toppings.append("\t").append(topping).append("\t\t\t").
+                        append(String.format("$%.2f\n", priceTable.get(topping.toLowerCase()) * breadQty));
             }
+            receiptEntry = bread + toppings.toString() + coffee;
         }
     }
 
