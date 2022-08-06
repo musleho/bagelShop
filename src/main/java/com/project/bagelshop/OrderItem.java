@@ -77,6 +77,7 @@ public class OrderItem {
         if (breadQty != this.breadQty) setBreadQty(breadQty);
         if (!coffeeItem.equalsIgnoreCase(this.coffeeItem)) setCoffeeItem(coffeeItem);
         if (coffeeQty != this.coffeeQty) setCoffeeQty(coffeeQty);
+        this.toppingsList.clear(); //ensures we don't duplicate addition of items to the toppings list.
         for (String topping : toppingsList) {
             addTopping(topping);
         }
@@ -225,9 +226,12 @@ public class OrderItem {
             coffee += "\n" + lineBreak;
 
             StringBuilder toppings = new StringBuilder();
-            for (String topping : toppingsList) {
-                toppings.append("\t").append(topping).append("\t\t\t").
-                        append(String.format("$%.2f\n", priceTable.get(topping.toLowerCase()) * breadQty));
+            if (!toppingsList.isEmpty()) {
+                toppings.append("\n");
+                for (String topping : toppingsList) {
+                    toppings.append("\t").append(topping).append("\t\t\t").
+                            append(String.format("$%.2f\n", priceTable.get(topping.toLowerCase()) * breadQty));
+                }
             }
             receiptEntry = bread + toppings.toString() + coffee;
         }

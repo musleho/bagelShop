@@ -134,7 +134,7 @@ public class bagelShopController {
         }
     }
 
-    public void setItemDisables() {
+    private void setItemDisables() {
         for (int i = 0; i < 6; i++){
             try {
                 OrderItem currentItem = order.getOrder().get(i);
@@ -143,7 +143,7 @@ public class bagelShopController {
                 for (Node child : currentPane.getChildren()) {
                     if (child instanceof Label item) {
                         if (!item.getText().contains("$"))
-                            item.setText(currentItem.getBreadItem());
+                            item.setText(currentItem.getBreadItem() + " x " +currentItem.getBreadQty());
                         else item.setText(currentItem.getSubtotalAsString());
                     }
                 }
@@ -183,13 +183,12 @@ public class bagelShopController {
     public void confirmOrder() throws IOException {
         Alert popup = new Alert(Alert.AlertType.INFORMATION);
         if (order.getTotalAsDouble() > 0) {
-            System.out.println(order.getTotalAsDouble());
             popup.setTitle("Confirmed!");
             popup.setContentText("Your order has been confirmed! Thanks!");
             popup.showAndWait();
             saveToFile();
             printReceipt();
-            cancelOrder(); //resets everything after saving and printing
+            clearOrder(); //resets everything after saving and printing
         }
         else {
             popup.setTitle("Error!");
@@ -199,8 +198,21 @@ public class bagelShopController {
     }
     @FXML
     public void cancelOrder() {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Are you sure?");
+        confirmation.setContentText("Are you sure you want to cancel and reset your entire order?");
+        Optional<ButtonType> result = confirmation.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == ButtonType.OK) {
+                clearOrder();
+            }
+        }
+    }
+
+    private void clearOrder() {
         resetForm();
         order = new Order();
+        updateOrderPrices();
         setItemDisables();
     }
 

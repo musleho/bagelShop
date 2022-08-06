@@ -105,7 +105,7 @@ public class Order {
         String doubleBreak = lineBreak + lineBreak;
         StringBuilder itemEntries = new StringBuilder();
         for (OrderItem item : order) {
-            itemEntries.append(item.getReceiptEntry()).append(lineBreak).append("\n");
+            itemEntries.append(item.getReceiptEntry());
         }
         receipt = new String[]{
                 "Sheridan Bagel Shop",
