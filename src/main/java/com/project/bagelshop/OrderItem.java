@@ -69,6 +69,7 @@ public class OrderItem {
      */
     protected OrderItem() {
         reset();
+        setItemID(-1);
     }
 
     protected void updateItem(String breadItem, int breadQty, String coffeeItem, int coffeeQty,

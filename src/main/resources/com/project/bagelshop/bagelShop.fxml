@@ -3,7 +3,11 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -111,4 +115,22 @@
          </Pane>
       </Pane>
    </Pane>
+   <MenuBar prefHeight="26.0" prefWidth="872.0">
+     <menus>
+       <Menu mnemonicParsing="false" text="Commands">
+            <items>
+               <MenuItem mnemonicParsing="false" onAction="#addToOrder" text="Add to Order" />
+               <MenuItem mnemonicParsing="false" onAction="#resetForm" text="Reset" />
+               <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem mnemonicParsing="false" onAction="#confirmOrder" text="Confirm Order" />
+               <MenuItem mnemonicParsing="false" onAction="#cancelOrder" text="Cancel Order" />
+               <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem mnemonicParsing="false" onAction="#saveToFile" text="Save" />
+               <MenuItem mnemonicParsing="false" onAction="#printReceipt" text="Print" />
+               <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem mnemonicParsing="false" onAction="#closeWindow" text="Exit" />
+            </items>
+       </Menu>
+     </menus>
+   </MenuBar>
 </AnchorPane>

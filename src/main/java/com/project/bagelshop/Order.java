@@ -54,7 +54,7 @@ public class Order {
         }
     }
 
-    private void updateOrder(int itemID, String breadItem, int breadQty, String coffeeItem, int coffeeQty,
+    protected void updateOrderItem(int itemID, String breadItem, int breadQty, String coffeeItem, int coffeeQty,
                              ArrayList<String> toppingsList) {
         order.get(itemID).updateItem(breadItem, breadQty, coffeeItem, coffeeQty,
                                      toppingsList);
