@@ -7,7 +7,7 @@ import java.util.HashMap;
  * A concrete class used to represent a single order item inclusive of the bagel choice, coffee, and toppings.
  * Unlike in version one of this application, all details related to an orderItem are built into the orderItem
  * class, which greatly simplifies/reduces the methods needed in the bagelShopController class
- *
+ * @author Pizaan
  * @author Omar Musleh
  */
 
